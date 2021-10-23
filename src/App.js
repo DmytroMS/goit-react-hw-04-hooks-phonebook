@@ -12,19 +12,18 @@ const initialContacts = [
   { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
 ];
 
-export default function App () {
+export default function App() {
   const [contacts, setContacts] = useState(() => {
-    return JSON.parse(window.localStorage.getItem('contacts')) ?? '';
+    return (
+      JSON.parse(window.localStorage.getItem('contacts')) ?? initialContacts
+    );
   });
   const [filter, setFilter] = useState('');
-
 
   // Добавляем контакты в локал сторедж
   useEffect(() => {
     window.localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
-
-
 
   const onSubmitAddContact = (name, number) => {
     if (contacts.find(contact => contact.name === name)) {
@@ -34,7 +33,7 @@ export default function App () {
         id: shortid.generate(),
         name,
         number,
-      }
+      };
       setContacts(prevState => [newContact, ...prevState]);
     }
   };
@@ -43,109 +42,34 @@ export default function App () {
     setFilter(e.currentTarget.value);
   };
 
- const deleteContact = id => {
-    setContacts(prevState => prevState.filter(contact => {
+  const deleteContact = id => {
+    setContacts(prevState =>
+      prevState.filter(contact => {
         return contact.id !== id;
       }),
     );
   };
 
-
   const getvisibleContacts = () => {
-    contacts.filter(contact => contact.name.toLowerCase().includes(filter.toLowerCase()));
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter),
+    );
   };
 
-
+  console.log('contacts', contacts);
+  console.log('getvisibleContacts()', getvisibleContacts());
 
   return (
-     <div className={s.container}>
-         <h1>Phonebook</h1>
-         <InputForm addContactOnSubmit={onSubmitAddContact} />
-         <h2>Contacts</h2>
-         <Filter value={filter} onChange={filterContacts} />
-         <ContactList
-           onDeleteContact={deleteContact}
-           contacts={getvisibleContacts()}
-         />
-       </div>
-  )
-};
-
-
-
-
-
-
-// class App extends Component {
-//   state = {
-//     contacts: [],
-//     filter: '',
-//   };
-
-  // // Забираем контакты с локал сторедж
-
-  // componentDidMount() {
-  //   const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
-  //   console.log('parsedContacts', parsedContacts);
-  //   if (parsedContacts !== null) {
-  //     this.setState({ contacts: parsedContacts });
-  //   } else {
-  //     this.setState({ contacts: initialContacts });
-  //   }   
-  // }
-
-  // // Добавляем контакты в локал сторедж
-  // componentDidUpdate() {
-  //   localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  // }
-
-  // onSubmitAddContact = data => {
-  //   if (this.state.contacts.find(contact => contact.name === data.name)) {
-  //     return alert(`${data.name} is alredy in contacts`);
-  //   } else {
-  //     data.id = shortid.generate();
-  //     this.setState(prevState => ({
-  //       contacts: [...prevState.contacts, data],
-  //     }));
-  //   }
-  // };
-
-  // deleteContact = id => {
-  //   this.setState(prevState => ({
-  //     contacts: prevState.contacts.filter(contact => {
-  //       return contact.id !== id;
-  //     }),
-  //   }));
-  // };
-
-  // getvisibleContacts = () => {
-  //   const { contacts, filter } = this.state;
-  //   const normalizedFilter = filter.toLowerCase();
-  //   return contacts.filter(contact =>
-  //     contact.name.toLowerCase().includes(normalizedFilter),
-  //   );
-  // };
-
-  // filterContacts = e => {
-  //   this.setState({ filter: e.currentTarget.value });
-  // };
-
-//   render() {
-//     const visibleContacts = this.getvisibleContacts();
-//     const { filter } = this.state;
-//     return (
-//       <div className={s.container}>
-//         <h1>Phonebook</h1>
-//         <InputForm addContactOnSubmit={this.onSubmitAddContact} />
-//         <h2>Contacts</h2>
-//         <Filter value={filter} onChange={this.filterContacts} />
-//         <ContactList
-//           onDeleteContact={this.deleteContact}
-//           contacts={visibleContacts}
-//         />
-//       </div>
-//     );
-//   }
-// }
-
-// export default App;
+    <div className={s.container}>
+      <h1>Phonebook</h1>
+      <InputForm addContactOnSubmit={onSubmitAddContact} />
+      <h2>Contacts</h2>
+      <Filter value={filter} onChange={filterContacts} />
+      <ContactList
+        onDeleteContact={deleteContact}
+        contacts={getvisibleContacts()}
+      />
+    </div>
+  );
+}
